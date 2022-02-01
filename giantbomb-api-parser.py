@@ -21,11 +21,7 @@ apiKey = "api_key=" + api_key_giantbomb.api_key
 headers={ "user-agent": "pyhton request module" }
 
 
-
 ### METHODS ###
-
-
-
 
 class PublishedGames:
 	def published_games_by_company():
@@ -42,8 +38,6 @@ class PublishedGames:
 class ParseData:
 	def game_reviews(reviewsJson, title):
 		# construct review dictionary
-		# title = reviewsJson['results'][0]['game']['name']
-		#gameReviewDictionary = defaultdict(set)
 		gameReviewDictionary = {}
 		gameReviewDictionary[title] = {'ReviewsByScore':[]}
 
@@ -64,6 +58,18 @@ class ParseData:
 
 		gameReviewDictionary[title]['ReviewsByScore'].append(buildReviewDict)
 		return gameReviewDictionary
+
+	def write_data_json(jsonFile, dictData):
+		# write dictionary in JSON format
+		with open(jsonFile, 'wb') as f:
+			json.dump(dictData, codecs.getwriter('utf-8')(f), ensure_ascii=False)     
+		return
+     
+     
+# # write dictionary in JSON format
+# with open('game_reviews.json', 'wb') as f:
+# 	json.dump(reviewsAppendJson, codecs.getwriter('utf-8')(f), ensure_ascii=False)
+
 
 ### PROCESS ###
 
@@ -94,62 +100,20 @@ for gameIndex in range(len(publishedGamesDict['results']['published_games'])):
     
     # convert response to iterable dictionary
     gameReviewsDict = responseGameReviews.json()
-    # append to JSON Dictionary
-    reviewsAppendJson.update(ParseData.game_reviews(gameReviewsDict, gameTitle))
-
-# write dictionary in JSON format
-with open('game_reviews.json', 'wb') as f:
-    json.dump(reviewsAppendJson, codecs.getwriter('utf-8')(f), ensure_ascii=False)
-
-# jsonFile = open('game_reviews.json', 'a')
-# jsonFile.write(json.dump(reviewsAppendJson, codecs.getwriter('utf-8'), ensure_ascii=False))
-# jsonFile.close
-	
-#pprint.pprint(json.loads(json.dumps(gameReviewDictionary)))
-#print(gameReviewDictionary)
     
+    # check if review ids match game filter (bug with giantbomb API reporting incorrect user reviews from some filters)
+    try:
+        checkGameID = gameReviewsDict['results'][0]['game']['id']
+        if checkGameID == gameID:
+            # append to JSON Dictionary
+            reviewsAppendJson.update(ParseData.game_reviews(gameReviewsDict, gameTitle))
+    except:
+        print("no data for " + gameTitle)
 
-    
-
-
-
-#------------------------------------------------------
-
-# ### Sample parsing examples PUBLISHED GAMES
-# publishedGamesDict = responsePublishedGames.json()
-
-# #returns 108 items
-# print(len(publishedGamesDict['results']['published_games']))
-
-# #returns first item as string
-# print(publishedGamesDict['results']['published_games'][0])
-
-# #returns first item's url
-# print(publishedGamesDict['results']['published_games'][0]['api_detail_url'])
-
-# #returns first item's id
-# print(publishedGamesDict['results']['published_games'][0]['id'])
-
-# #returns first item's game name
-# print(publishedGamesDict['results']['published_games'][0]['name'])
+ParseData.write_data_json('published_games.json', publishedGamesDict)
+ParseData.write_data_json('game_reviews.json', reviewsAppendJson)
 
 
-
-
-
-
-
-
-# https://www.giantbomb.com/api/user_reviews/?format=json&filter=game:3030-36765 ----------------REVIEWS OF THE GAME
-# https://www.giantbomb.com/api/company/3010-450/?format=json&field_list=published_games
-# https://www.giantbomb.com/api/company/3010-450/?format=json&field_list=published_games&api_key=1c6309afefdb77a9ba01da868ed7afc3b3d140e7
-# https://www.giantbomb.com/api/reviews/?format=json&filter=guid:3030-20827
-
-
-
-# {"$LabelName": {"ReviewsByScore": [
-#       "5": [ {"Title": "Title Name", "Reviewer": "Reviewer Name", "ReleaseDate": "01/01/2019"}],
-#       "4": [ {"Title": "Title Name", "Reviewer": "Reviewer Name", "ReleaseDate": "01/01/2019", "IsDlc": true}]
-#     ]
-#   }
-# }
+# # write dictionary in JSON format
+# with open('game_reviews.json', 'wb') as f:
+#     json.dump(reviewsAppendJson, codecs.getwriter('utf-8')(f), ensure_ascii=False)
