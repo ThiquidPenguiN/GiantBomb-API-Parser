@@ -116,3 +116,4 @@ dmypy.json
 # Build specific files
 api_key_giantbomb.py
 *.json
+outputs/
