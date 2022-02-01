@@ -2,6 +2,7 @@ import requests
 import api_key_giantbomb
 import pprint
 import json
+from collections import defaultdict
 
 
 #URI Formation
@@ -42,12 +43,18 @@ responseGameReviews = requests.get(getGameReviews, headers=headers)
 
 ### Sample parsing examples GAME REVIEWS
 gameReviews_dict = responseGameReviews.json()
+
+
+
+
 #print(gameReviews_dict['results'][0]['score'])
 
 # construct review dictionary
 gameTitle = gameReviews_dict['results'][0]['game']['name']
 gameReviewDictionary = {}
 gameReviewDictionary =  {'GameTitle': gameTitle, 'ReviewsByScore': []}
+
+buildReviewDict = defaultdict(list)
 
 for n in range(len(gameReviews_dict['results'])):
     
@@ -60,21 +67,12 @@ for n in range(len(gameReviews_dict['results'])):
     
     blockOfReviewData = {'Title' : reviewTitle, 'Reviewer' : reviewReviewer, 'ReleaseDate' : reviewDate, 'IsDLC' : reviewIsDLC}
     
-    if reviewScore not in gameReviewDictionary['ReviewsByScore']:
-        gameReviewDictionary['ReviewsByScore'].append(reviewScore)
-    
-    #gameReviewDictionary['ReviewsByScore'][0] = blockOfReviewData
-    
-print(gameReviewDictionary)
-    #gameReviewDictionary['ReviewsByScore'][reviewScore] = blockOfReviewData
-    
+    buildReviewDict[reviewScore].append(blockOfReviewData)
     
 
-    # gameReviewDictionary['ReviewsByScore'][reviewScore-1] = [gameReviews_dict['results'][n]['deck']]
-    # print(gameReviewDictionary['ReviewsByScore'][reviewScore-1])
-
-#print(gameReviewDictionary)
-
+    
+pprint.pprint(buildReviewDict)
+    
 
     
 
