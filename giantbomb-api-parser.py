@@ -97,7 +97,7 @@ reviewsAppendJson = {}
 
 # iterate through published game results to build JSON dictionary
 for gameIndex in range(len(publishedGamesDict['results']['published_games'])):
-    # build api string game reviews by ID
+    # query api string game reviews by ID
     gameReviewsDict = ParseData.query_reviews(publishedGamesDict)
     
     # check if review ids match game filter (bug with giantbomb API reporting incorrect user reviews from some filters)
