@@ -50,10 +50,16 @@ def game_reviews(reviewsJson, title):
 	return gameReviewDictionary
 
 
-def extract_game_id(gamesDictionary):
+def published_games_by_company():
+    # build api string published games
+    getPublishedGames = baseUrl+moduleCompany+companyCodeTake2+"/?"+formatJson+"&"+publishedGamesField+"&"+apiKey
+    print ("request url " + getPublishedGames)
+    # send get request for published games
+    responsePublishedGames = requests.get(getPublishedGames, headers=headers)
+    # convert output to iterable dictionary
+    outputGamesDict = responsePublishedGames.json()
     
-    
-    return
+    return outputGamesDict
 
 
 ### PROCESS ###
@@ -66,11 +72,12 @@ print ("request url " + getPublishedGames)
 responsePublishedGames = requests.get(getPublishedGames, headers=headers)
 
 # convert output to iterable dictionary
-publishedGamesDict = responsePublishedGames.json()
+publishedGamesDict = published_games_by_company()
 
 # start building JSON file dictionary for export
 reviewsAppendJson = {}
 
+# iterate through published game results to build JSON dictionary
 for gameIndex in range(len(publishedGamesDict['results']['published_games'])):
     # build api string game reviews by ID
     #store gameID
@@ -87,7 +94,7 @@ for gameIndex in range(len(publishedGamesDict['results']['published_games'])):
     # append to JSON Dictionary
     reviewsAppendJson.update(game_reviews(gameReviewsDict, gameTitle))
 
-
+# write dictionary in JSON format
 with open('game_reviews.json', 'wb') as f:
     json.dump(reviewsAppendJson, codecs.getwriter('utf-8')(f), ensure_ascii=False)
 
