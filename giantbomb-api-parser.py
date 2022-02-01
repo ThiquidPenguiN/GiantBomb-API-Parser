@@ -37,6 +37,7 @@ class PublishedGames:
 		return outputGamesDict
 
 class ParseData:
+    
 	def game_reviews(reviewsJson, title):
 		# construct review dictionary
 		gameReviewDictionary = {}
@@ -60,28 +61,35 @@ class ParseData:
 		gameReviewDictionary[title]['ReviewsByScore'].append(buildReviewDict)
 		return gameReviewDictionary
 
+	def get_game_id(publishedApi):		
+		gameID = publishedApi['results']['published_games'][gameIndex]['id']
+		return gameID
+
+	def get_game_title(publishedApi):		
+		gameTitle = publishedApi['results']['published_games'][gameIndex]['name']
+		return gameTitle
+
+	def query_reviews(publishedApi):
+		#store gameID
+		varId = ParseData.get_game_id(publishedGamesDict)
+		#query by game uid
+		getGameReviews = baseUrl+moduleReviews+"/?"+formatJson+"&"+gamesGuidFilter+companyCodePrefix+str(varId)+"&"+apiKey
+		print ("request url " + getGameReviews)
+		#send get request for game reviews by ID
+		response = requests.get(getGameReviews, headers=headers)
+		# convert response to iterable dictionary
+		outputReviewsDict = response.json()
+		return outputReviewsDict
+
 	def write_data_json(jsonFile, dictData):
 		# write dictionary in JSON format
 		with open(jsonFile, 'wb') as f:
 			json.dump(dictData, codecs.getwriter('utf-8')(f), ensure_ascii=False)     
 		return
      
-     
-# # write dictionary in JSON format
-# with open('game_reviews.json', 'wb') as f:
-# 	json.dump(reviewsAppendJson, codecs.getwriter('utf-8')(f), ensure_ascii=False)
-
-
 ### PROCESS ###
 
-# build api string published games
-getPublishedGames = baseUrl+moduleCompany+companyCodeTake2+"/?"+formatJson+"&"+publishedGamesField+"&"+apiKey
-print ("request url " + getPublishedGames)
-
-# send get request for published games
-responsePublishedGames = requests.get(getPublishedGames, headers=headers)
-
-# convert output to iterable dictionary
+# get and convert published games output to iterable dictionary
 publishedGamesDict = PublishedGames.published_games_by_company()
 
 # start building JSON file dictionary for export
@@ -90,33 +98,24 @@ reviewsAppendJson = {}
 # iterate through published game results to build JSON dictionary
 for gameIndex in range(len(publishedGamesDict['results']['published_games'])):
     # build api string game reviews by ID
-    #store gameID
-    gameID = publishedGamesDict['results']['published_games'][gameIndex]['id']
-    gameTitle = publishedGamesDict['results']['published_games'][gameIndex]['name']
-    #query by gameID
-    getGameReviews = baseUrl+moduleReviews+"/?"+formatJson+"&"+gamesGuidFilter+companyCodePrefix+str(gameID)+"&"+apiKey
-    print ("request url " + getGameReviews)
-    #send get request for game reviews by ID
-    responseGameReviews = requests.get(getGameReviews, headers=headers)
-    
-    # convert response to iterable dictionary
-    gameReviewsDict = responseGameReviews.json()
+    gameReviewsDict = ParseData.query_reviews(publishedGamesDict)
     
     # check if review ids match game filter (bug with giantbomb API reporting incorrect user reviews from some filters)
     try:
         checkGameID = gameReviewsDict['results'][0]['game']['id']
-        if checkGameID == gameID:
+        if checkGameID == ParseData.get_game_id(publishedGamesDict):
             # append to JSON Dictionary
-            reviewsAppendJson.update(ParseData.game_reviews(gameReviewsDict, gameTitle))
+            reviewsAppendJson.update(ParseData.game_reviews(gameReviewsDict, ParseData.get_game_title(publishedGamesDict)))
     except:
-        print("no data for " + gameTitle)
+        print("no data for " + ParseData.get_game_title(publishedGamesDict))
 
 # process outputs
-os.mkdir('./outputs')
+try:
+	os.mkdir('./outputs')
+except:
+    print('outputs already exists')
+
+# write dictionary in JSON format
+print('writing JSON data')
 ParseData.write_data_json('outputs/published_games.json', publishedGamesDict)
 ParseData.write_data_json('outputs/game_reviews.json', reviewsAppendJson)
-
-
-# # write dictionary in JSON format
-# with open('game_reviews.json', 'wb') as f:
-#     json.dump(reviewsAppendJson, codecs.getwriter('utf-8')(f), ensure_ascii=False)
