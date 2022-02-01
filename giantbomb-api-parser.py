@@ -4,6 +4,7 @@ import pprint
 import json
 from collections import defaultdict
 import codecs
+import os
 
 
 #URI Formation
@@ -110,8 +111,10 @@ for gameIndex in range(len(publishedGamesDict['results']['published_games'])):
     except:
         print("no data for " + gameTitle)
 
-ParseData.write_data_json('published_games.json', publishedGamesDict)
-ParseData.write_data_json('game_reviews.json', reviewsAppendJson)
+# process outputs
+os.mkdir('./outputs')
+ParseData.write_data_json('outputs/published_games.json', publishedGamesDict)
+ParseData.write_data_json('outputs/game_reviews.json', reviewsAppendJson)
 
 
 # # write dictionary in JSON format
