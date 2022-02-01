@@ -74,13 +74,23 @@ def game_reviews(reviewsJson):
 
 
 ### PROCESS ###
+# reviewsAppendJson = defaultdict(dict)
+reviewsAppendJson = {}
 
-reviewsAppendJson = game_reviews(gameReviewsDict)
+reviewsAppendJson.update(game_reviews(gameReviewsDict))
+
 #print((json.loads(json.dumps(reviewsAppendJson))))
+
+
+
 
 
 with open('game_reviews.json', 'wb') as f:
     json.dump(reviewsAppendJson, codecs.getwriter('utf-8')(f), ensure_ascii=False)
+
+# jsonFile = open('game_reviews.json', 'a')
+# jsonFile.write(json.dump(reviewsAppendJson, codecs.getwriter('utf-8'), ensure_ascii=False))
+# jsonFile.close
 	
 #pprint.pprint(json.loads(json.dumps(gameReviewDictionary)))
 #print(gameReviewDictionary)
