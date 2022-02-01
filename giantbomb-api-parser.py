@@ -3,10 +3,11 @@ import api_key_giantbomb
 import pprint
 import json
 from collections import defaultdict
+import codecs
 
 
 #URI Formation
-base_url = 'https://www.giantbomb.com/api'
+baseUrl = 'https://www.giantbomb.com/api'
 moduleCompany = "/company"
 moduleReviews = "/user_reviews"
 companyCodeTake2 = "/3010-450" #company code can only be acquired by navigating with a web browser to giantbomb.com, finding the company profile, and inspecting the URL.
@@ -18,62 +19,93 @@ formatJson = "format=json"
 apiKey = "api_key=" + api_key_giantbomb.api_key
 #required params
 headers={ "user-agent": "pyhton request module" }
-#One off
-gameID = "36765"
 
 
-#build api string published games
-getPublishedGames = base_url+moduleCompany+companyCodeTake2+"/?"+formatJson+"&"+publishedGamesField+"&"+apiKey
+
+### METHODS ###
+
+
+
+
+class PublishedGames:
+	def published_games_by_company():
+		# build api string published games
+		getPublishedGames = baseUrl+moduleCompany+companyCodeTake2+"/?"+formatJson+"&"+publishedGamesField+"&"+apiKey
+		print ("request url " + getPublishedGames)
+		# send get request for published games
+		responsePublishedGames = requests.get(getPublishedGames, headers=headers)
+		# convert output to iterable dictionary
+		outputGamesDict = responsePublishedGames.json()
+		
+		return outputGamesDict
+
+class ParseData:
+	def game_reviews(reviewsJson, title):
+		# construct review dictionary
+		# title = reviewsJson['results'][0]['game']['name']
+		#gameReviewDictionary = defaultdict(set)
+		gameReviewDictionary = {}
+		gameReviewDictionary[title] = {'ReviewsByScore':[]}
+
+		buildReviewDict = defaultdict(list)
+
+		for n in range(len(reviewsJson['results'])):
+			
+			reviewScore = reviewsJson['results'][n]['score']
+			
+			reviewTitle = reviewsJson['results'][n]['deck']
+			reviewReviewer = reviewsJson['results'][n]['reviewer']
+			reviewDate = reviewsJson['results'][n]['date_added']
+			reviewIsDLC = reviewsJson['results'][n]['dlc']
+			
+			blockOfReviewData = {'Title' : reviewTitle, 'Reviewer' : reviewReviewer, 'ReleaseDate' : reviewDate, 'IsDLC' : reviewIsDLC}
+			
+			buildReviewDict[reviewScore].append(blockOfReviewData)
+
+		gameReviewDictionary[title]['ReviewsByScore'].append(buildReviewDict)
+		return gameReviewDictionary
+
+### PROCESS ###
+
+# build api string published games
+getPublishedGames = baseUrl+moduleCompany+companyCodeTake2+"/?"+formatJson+"&"+publishedGamesField+"&"+apiKey
 print ("request url " + getPublishedGames)
 
-#send get request for published games
+# send get request for published games
 responsePublishedGames = requests.get(getPublishedGames, headers=headers)
-# pprint.pprint(responsePublishedGames.json())
 
+# convert output to iterable dictionary
+publishedGamesDict = PublishedGames.published_games_by_company()
 
-#build api string game reviews by ID
-getGameReviews = base_url+moduleReviews+"/?"+formatJson+"&"+gamesGuidFilter+companyCodePrefix+gameID+"&"+apiKey
-print ("request url " + getGameReviews)
+# start building JSON file dictionary for export
+reviewsAppendJson = {}
 
-#send get request for game reviews by ID
-responseGameReviews = requests.get(getGameReviews, headers=headers)
-
-
-
-
-### Sample parsing examples GAME REVIEWS
-gameReviews_dict = responseGameReviews.json()
-
-
-
-
-#print(gameReviews_dict['results'][0]['score'])
-
-# construct review dictionary
-gameTitle = gameReviews_dict['results'][0]['game']['name']
-#gameReviewDictionary = defaultdict(set)
-gameReviewDictionary = {}
-gameReviewDictionary[gameTitle] = {'ReviewsByScore':[]}
-
-buildReviewDict = defaultdict(list)
-
-for n in range(len(gameReviews_dict['results'])):
+# iterate through published game results to build JSON dictionary
+for gameIndex in range(len(publishedGamesDict['results']['published_games'])):
+    # build api string game reviews by ID
+    #store gameID
+    gameID = publishedGamesDict['results']['published_games'][gameIndex]['id']
+    gameTitle = publishedGamesDict['results']['published_games'][gameIndex]['name']
+    #query by gameID
+    getGameReviews = baseUrl+moduleReviews+"/?"+formatJson+"&"+gamesGuidFilter+companyCodePrefix+str(gameID)+"&"+apiKey
+    print ("request url " + getGameReviews)
+    #send get request for game reviews by ID
+    responseGameReviews = requests.get(getGameReviews, headers=headers)
     
-    reviewScore = gameReviews_dict['results'][n]['score']
-    
-    reviewTitle = gameReviews_dict['results'][n]['deck']
-    reviewReviewer = gameReviews_dict['results'][n]['reviewer']
-    reviewDate = gameReviews_dict['results'][n]['date_added']
-    reviewIsDLC = gameReviews_dict['results'][n]['dlc']
-    
-    blockOfReviewData = {'Title' : reviewTitle, 'Reviewer' : reviewReviewer, 'ReleaseDate' : reviewDate, 'IsDLC' : reviewIsDLC}
-    
-    buildReviewDict[reviewScore].append(blockOfReviewData)
+    # convert response to iterable dictionary
+    gameReviewsDict = responseGameReviews.json()
+    # append to JSON Dictionary
+    reviewsAppendJson.update(ParseData.game_reviews(gameReviewsDict, gameTitle))
 
-gameReviewDictionary[gameTitle]['ReviewsByScore'].append(buildReviewDict)
+# write dictionary in JSON format
+with open('game_reviews.json', 'wb') as f:
+    json.dump(reviewsAppendJson, codecs.getwriter('utf-8')(f), ensure_ascii=False)
 
-    
-pprint.pprint(json.loads(json.dumps(gameReviewDictionary)))
+# jsonFile = open('game_reviews.json', 'a')
+# jsonFile.write(json.dump(reviewsAppendJson, codecs.getwriter('utf-8'), ensure_ascii=False))
+# jsonFile.close
+	
+#pprint.pprint(json.loads(json.dumps(gameReviewDictionary)))
 #print(gameReviewDictionary)
     
 
@@ -84,22 +116,22 @@ pprint.pprint(json.loads(json.dumps(gameReviewDictionary)))
 #------------------------------------------------------
 
 # ### Sample parsing examples PUBLISHED GAMES
-# publishedGames_dict = responsePublishedGames.json()
+# publishedGamesDict = responsePublishedGames.json()
 
 # #returns 108 items
-# print(len(publishedGames_dict['results']['published_games']))
+# print(len(publishedGamesDict['results']['published_games']))
 
 # #returns first item as string
-# print(publishedGames_dict['results']['published_games'][0])
+# print(publishedGamesDict['results']['published_games'][0])
 
 # #returns first item's url
-# print(publishedGames_dict['results']['published_games'][0]['api_detail_url'])
+# print(publishedGamesDict['results']['published_games'][0]['api_detail_url'])
 
 # #returns first item's id
-# print(publishedGames_dict['results']['published_games'][0]['id'])
+# print(publishedGamesDict['results']['published_games'][0]['id'])
 
 # #returns first item's game name
-# print(publishedGames_dict['results']['published_games'][0]['name'])
+# print(publishedGamesDict['results']['published_games'][0]['name'])
 
 
 
