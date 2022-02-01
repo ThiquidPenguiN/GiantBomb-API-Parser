@@ -51,8 +51,9 @@ gameReviews_dict = responseGameReviews.json()
 
 # construct review dictionary
 gameTitle = gameReviews_dict['results'][0]['game']['name']
+#gameReviewDictionary = defaultdict(set)
 gameReviewDictionary = {}
-gameReviewDictionary =  {'GameTitle': gameTitle, 'ReviewsByScore': []}
+gameReviewDictionary[gameTitle] = {'ReviewsByScore':[]}
 
 buildReviewDict = defaultdict(list)
 
@@ -68,10 +69,12 @@ for n in range(len(gameReviews_dict['results'])):
     blockOfReviewData = {'Title' : reviewTitle, 'Reviewer' : reviewReviewer, 'ReleaseDate' : reviewDate, 'IsDLC' : reviewIsDLC}
     
     buildReviewDict[reviewScore].append(blockOfReviewData)
-    
+
+gameReviewDictionary[gameTitle]['ReviewsByScore'].append(buildReviewDict)
 
     
-pprint.pprint(buildReviewDict)
+pprint.pprint(json.loads(json.dumps(gameReviewDictionary)))
+#print(gameReviewDictionary)
     
 
     
