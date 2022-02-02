@@ -4,6 +4,8 @@
 
 ## Setup For Use
 
+### Notice: Be sure to install python 3.9.x
+
 ### 1) Create `api_key_giantbomb.py` for api key (use code snippet below)
 ```
 #python file that exports the api_key
@@ -11,9 +13,14 @@ api_key = 'place api key here'
 ```
 
 ### 2) Initialize Virtual Environment. [Details on it's setup in Dev Notes](###-Dev-notes)
-- Use `venv\scripts\activate` within root folder of project to activate virtual environment. No need to import libraries :)
+- Run `python -m venv path/to/project/root/venv` within root folder of project to initialize virtual environment.
+- Run `venv\scripts\activate` within root folder of project to activate virtual environment.
+- If successful, your terminal will have the "(venv)" prefix. Example: `$ (venv) D:\git\GiantBomb-API-Parser>`
 
-### 3) Run Parser
+### 3) Install requirements for virtual environment
+- Run `pip install -r requirements.txt`. This may take a couple of moments as it is installing virtual environment requirements, please be patient.
+
+### 4) Run Parser
 - Call `python .\giantbomb-api-parser.py` to run API script. This will generate an `outputs/` directory in the root of the project.
 - This will generate these JSON files: `published_games.json` and `game_reviews.json`.
 
