@@ -16,11 +16,12 @@
 api_key = 'place api key here'
 ```
 
-
 ### 2) Installing Prerequisits
 - Install pip
 	- Ubuntu: `sudo apt-get install python3-pip`
-	- Windows: `python get-pip.py`
+	- Windows: 
+		- `curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py`
+		- `python get-pip.py`
 - Run to install virtualenv `python3 -m pip install --user virtualenv`
 - More info below [How to install virtualenv](#-How-to-install-virtualenv:)
 
