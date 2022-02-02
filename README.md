@@ -1,4 +1,4 @@
-# GiantBomb API Query
+# GiantBomb API Parser
  Query giant bomb api for take2 interactive published games, with reviews
 
 
