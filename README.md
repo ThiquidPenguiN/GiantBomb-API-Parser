@@ -8,12 +8,23 @@
 ### Notice: Be sure to install python 3.8.x, 3.9.x, or 3.10.x, as this was tested in those environments.
 
 ### 1) Create `api_key_giantbomb.py` for api key (use code snippet below)
+- you can obtain an API key here: https://www.giantbomb.com/api/
+
+`api_key_giantbomb.py`
 ```
 #python file that exports the api_key
 api_key = 'place api key here'
 ```
 
-### 2) Initialize Virtual Environment. [Details on it's setup in Dev Notes](###-Dev-notes)
+
+### 2) Installing Prerequisits
+- Install pip
+	- Ubuntu: `sudo apt-get install python3-pip`
+	- Windows: `python get-pip.py`
+- Run to install virtualenv `python3 -m pip install --user virtualenv`
+- More info below [How to install virtualenv](#-How-to-install-virtualenv:)
+
+### 3) Initialize Virtual Environment. [Details on it's setup in Dev Notes](###-Dev-notes)
 - Run `python -m venv path/to/project/root/venv` within root folder of project to initialize virtual environment. Note: You may need to install additional packages like `python3-venv`.
 - Activate the Virtual Environment
 	- On Unix or MacOS, using the bash shell: `source /path/to/venv/bin/activate`
@@ -24,11 +35,11 @@ api_key = 'place api key here'
 - If successful, your terminal will have the "(venv)" prefix. Example: `$ (venv) D:\git\GiantBomb-API-Parser>`
 - if you are having issues setting up virtual environments, please follow the instructions below on [How to install virtualenv](#-How-to-install-virtualenv:). Be sure to run `deactivate` in terminal to exit the virtual enviroment. Remove the `venv/` directory and its contents before troubleshooting.
 
-### 3) Install requirements for virtual environment
+### 4) Install requirements for virtual environment
 - Run `pip install -r requirements.txt`. This may take a couple of moments as it is installing virtual environment requirements, please be patient. Note: Be sure to be using `pip` associated with `python 3`, like `pip3`.
 - if you are still having issues setting up virtual environments, please follow the instructions below on [How to install virtualenv](#-How-to-install-virtualenv:). Be sure to run `deactivate` in terminal to exit the virtual enviroment. Remove the `venv/` directory and its contents before troubleshooting.
 
-### 4) Run Parser
+### 5) Run Parser
 - Call `python .\giantbomb-api-parser.py` to run API script. This will generate an `outputs/` directory in the root of the project. Be sure `python` is 
 - This will generate these JSON files: `published_games.json` and `game_reviews.json`.
 
@@ -55,11 +66,12 @@ api_key = 'place api key here'
 
 ### Install **pip** first
 
-    sudo apt-get install python3-pip
+    - Ubuntu: `sudo apt-get install python3-pip`
+	- Windows: `python get-pip.py`
 
 ### Then install **virtualenv** using pip3
 
-    sudo pip3 install virtualenv 
+    `python3 -m pip install --user virtualenv`
 
 ### Now create a virtual environment 
 
