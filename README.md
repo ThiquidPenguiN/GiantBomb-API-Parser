@@ -40,7 +40,7 @@ api_key = 'place api key here'
 - if you are still having issues setting up virtual environments, please follow the instructions below on [How to install virtualenv](#-How-to-install-virtualenv:). Be sure to run `deactivate` in terminal to exit the virtual enviroment. Remove the `venv/` directory and its contents before troubleshooting.
 
 ### 5) Run Parser
-- Call `python .\giantbomb-api-parser.py` to run API script. This will generate an `outputs/` directory in the root of the project. Be sure `python` is 
+- Call `python .\giantbomb-api-parser.py` to run API script. This will generate an `outputs/` directory in the root of the project. Be sure `python` is running on version `3.x`.
 - This will generate these JSON files: `published_games.json` and `game_reviews.json`.
 
 ### ------------------------------------------------------------------------------- 
